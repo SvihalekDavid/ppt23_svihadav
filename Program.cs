@@ -5,7 +5,8 @@
 int cisloHadane = NahodneCislo();
 int cisloUzivatele = 0;
 string konec = "konec";
-string input = "";
+string? inputNull = "";
+string input= "";
 int NahodneCislo() => Random.Shared.Next(1, 101);
 
 while (true)
@@ -14,8 +15,12 @@ while (true)
 
     try
     {
-        input = Console.ReadLine();
-        if (input == null)
+        inputNull = Console.ReadLine();
+        if (inputNull != null)
+        {
+            input = inputNull;
+        }
+        else
         {
             throw new Exception();
         }
@@ -37,16 +42,20 @@ while (true)
         while (true)
         {
             Console.WriteLine("Chceš hrát znovu? ano/ne");
-            string odpoved = Console.ReadLine();
-
-            if (odpoved.Equals("ano"))
+            string? odpovedNull = Console.ReadLine();
+            string odpoved = "";
+            if (odpovedNull != null)
             {
-                cisloHadane = NahodneCislo();
-                break;
-            }
-            if (odpoved.Equals("ne"))
-            {
-                return;
+                odpoved = odpovedNull;
+                if (odpoved.Equals("ano"))
+                {
+                    cisloHadane = NahodneCislo();
+                    break;
+                }
+                if (odpoved.Equals("ne"))
+                {
+                    return;
+                }
             }
             Console.WriteLine("spatna odpoved zkus to znovu.");
         }
