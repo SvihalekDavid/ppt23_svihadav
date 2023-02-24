@@ -1,0 +1,36 @@
+@page "/hra"
+
+<h1>Vygeneroval jsem číslo od 1 do 100, uhádneš ho?</h1>
+
+<input @bind-value=hadaneCislo @bind-value:event="oninput"/>
+<button @onclick="Hadam" >Hádám</button> <br>
+<span>@odpoved</span> <br>
+<button @onclick="Hadam" style="display: none;" id="vyherniButton">Vygenerovat nové číslo</button>
+
+ @code
+ {
+    int hadaneCislo;
+    int vygenerovaneCislo;
+    string odpoved = "";
+
+    void Hadam()
+    {
+        if (hadaneCislo > vygenerovaneCislo)
+        {
+            odpoved = "Méně";
+        }
+        else if (hadaneCislo < vygenerovaneCislo)
+        {
+            odpoved = "Více";
+        }
+        else
+        {
+            odpoved = "Uhodl jste číslo, gratulace!";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        vygenerovaneCislo = Random.Shared.Next(1,101);
+    }
+ }
