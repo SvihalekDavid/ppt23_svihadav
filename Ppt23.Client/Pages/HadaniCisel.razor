@@ -2,7 +2,7 @@
 
 <h1>Vygeneroval jsem číslo od 1 do 100, uhádneš ho?</h1>
 
-<input @bind-value=hadaneCislo @bind-value:event="oninput"/>
+<input class="border border-sky-500" @bind-value=hadaneCislo @bind-value:event="oninput"/>
 <button @onclick="Hadam" >Hádám</button> <br>
 <span>@odpoved</span> <br>
 <button @onclick="Hadam" style="display: none;" id="vyherniButton">Vygenerovat nové číslo</button>
