@@ -1,2 +1,2 @@
-# ppt23_svihadav
-Toto je readme soubor.
+# Odkaz na stránky
+https://svihalekdavid.github.io/ppt23_svihadav/
