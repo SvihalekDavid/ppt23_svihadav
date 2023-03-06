@@ -1,14 +1,16 @@
 @page "/hra"
 
-<h1>Vygeneroval jsem číslo od 1 do 100, uhádneš ho?</h1>
+<h1 class="text-4xl text-black-900 font-bold text-center my-10">Vygeneroval jsem číslo od 1 do 100, uhádneš ho?</h1>
 
-<input class="border border-sky-500" @bind-value=hadaneCislo @bind-value:event="oninput"/>
-<button @onclick="Hadam" >Hádám</button> <br>
-<span>@odpoved</span> <br>
+<div class="text-center">
+<input class="border border-green-500" @bind-value=hadaneCislo @bind-value:event="oninput"/>
+<button @onclick="Hadam" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4">Hádám</button>
+</div>
+<div class="text-2xl text-black-900 text-center my-10">@odpoved</div>
 <button @onclick="Hadam" style="display: none;" id="vyherniButton">Vygenerovat nové číslo</button>
 
  @code
- {
+{
     int hadaneCislo;
     int vygenerovaneCislo;
     string odpoved = "";
@@ -25,7 +27,8 @@
         }
         else
         {
-            odpoved = "Uhodl jste číslo, gratulace!";
+            odpoved = "Uhodl jste číslo, gratulace! Generuji nové číslo, můžete hádat znovu";
+            vygenerovaneCislo = Random.Shared.Next(1, 101);
         }
     }
 
