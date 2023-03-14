@@ -1,0 +1,15 @@
+@using Ppt23.Client.ViewModels;
+<div class=@BarvaRadku>@Vyb.Name</div>
+<div class=@BarvaRadku>@Vyb.BoughtDateTime.ToString("yyyy-MM-dd")</div>
+<div class=@BarvaRadku>@Vyb.LastRevisionDateTime.ToString("yyyy-MM-dd")</div>
+<div class=@BarvaRadku>@Vyb.IsRevisionNeeded</div>
+<div class=@BarvaRadku><button class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-1" @onclick="() => SmazEventCallback.InvokeAsync()">smazat</button></div>
+<div class=@BarvaRadku><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-1" @onclick="() => RevizeEventCallback.InvokeAsync()">provest revizi</button></div>
+
+@code
+{
+    [Parameter] public VybaveniVM Vyb { get; set; }
+    [Parameter] public EventCallback SmazEventCallback { get; set; }
+    [Parameter] public EventCallback RevizeEventCallback { get; set; }
+    [Parameter] public string BarvaRadku { get; set; }
+}

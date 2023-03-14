@@ -1,1 +1,56 @@
-@page "/vybaveni_nemocnice"
+﻿@page "/vybaveni_nemocnice"
+@using Ppt23.Client.ViewModels
+@using Ppt23.Client.Components
+
+<div class="grid grid-cols-6">
+<div class="font-bold">Název</div>
+<div class="font-bold">Datum nákupu</div>
+<div class="font-bold">Datum poslední revize</div>
+<div class="font-bold">Potřebuje revizi?</div>
+<div></div>
+<div></div>
+@foreach (VybaveniVM vyb in seznamVybaveni)
+{
+   // <div>@vyb.Name</div>
+   // <div>@vyb.Name</div>
+   // <div>@vyb.Name</div>
+   // <div><button @onclick="() => seznamVybaveni.Remove(vyb)">smazat</button></div>
+
+   <VybaveniRow Vyb="vyb" SmazEventCallback="() => smazat(vyb)" RevizeEventCallback=" () => provedRevizi(vyb)" BarvaRadku=@urciBarvuRadku(vyb)>
+        
+   </VybaveniRow>
+}
+</div>
+
+@code
+{
+    List<VybaveniVM> seznamVybaveni;
+
+    public Vybaveni_nemocnice()
+    {
+        seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+    }
+
+    void smazat(VybaveniVM vyb)
+    {
+        seznamVybaveni.Remove(vyb);
+    }
+
+    void provedRevizi(VybaveniVM vyb)
+    {
+        if (vyb.IsRevisionNeeded)
+        {
+            vyb.LastRevisionDateTime = DateTime.Now;
+        }
+    }
+
+    string urciBarvuRadku(VybaveniVM vyb)
+    {
+        if (vyb.IsRevisionNeeded)
+        {
+            return "bg-red-300";
+        }
+        return "bg-white-300";
+    }
+
+}
