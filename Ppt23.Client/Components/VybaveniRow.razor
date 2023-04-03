@@ -1,15 +1,128 @@
+﻿@using Microsoft.AspNetCore.Components.Forms;
 @using Ppt23.Client.ViewModels;
-<div class=@BarvaRadku>@Vyb.Name</div>
-<div class=@BarvaRadku>@Vyb.BoughtDateTime.ToString("yyyy-MM-dd")</div>
-<div class=@BarvaRadku>@Vyb.LastRevisionDateTime.ToString("yyyy-MM-dd")</div>
-<div class=@BarvaRadku>@Vyb.IsRevisionNeeded</div>
-<div class=@BarvaRadku><button class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-1" @onclick="() => SmazEventCallback.InvokeAsync()">smazat</button></div>
-<div class=@BarvaRadku><button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-1" @onclick="() => RevizeEventCallback.InvokeAsync()">provest revizi</button></div>
 
+@if (Vyb == null) return;
+
+@if (isInNewMode != null && (bool)isInNewMode)
+{
+    TurnOnEdit();
+}
+
+@if (Vyb != null && !Vyb.IsInEditMode)
+{
+    <div class=@ziskejBarvuRadku(Vyb)>@Vyb.Name</div>
+    <div class=@ziskejBarvuRadku(Vyb)>@Vyb.BoughtDateTime.ToString("yyyy-MM-dd")</div>
+    <div class=@ziskejBarvuRadku(Vyb)>@Vyb.LastRevisionDateTime.ToString("yyyy-MM-dd")</div>
+    <div class=@ziskejBarvuRadku(Vyb)>@ziskejAnoNe(Vyb)</div>
+    <div class=@ziskejBarvuRadku(Vyb)>@Vyb.Cena</div>
+    <div class=@ziskejBarvuRadku(Vyb)>
+        <button class="twbtn bg-red-400" @onclick="() => SmazEventCallback.InvokeAsync()">X</button>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1" @onclick="() => RevizeEventCallback.InvokeAsync()">provest revizi</button>
+        <button @onclick="() => TurnOnEdit()" class="border-[1px] border-amber-600 rounded-sm text-sm px-2 py-2">✏️</button>
+    </div>
+}
+else if (editingItem != null && editingItem.IsInEditMode)
+{
+    <div class="bg-green-300">
+        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
+            <DataAnnotationsValidator /> 
+            <ValidationSummary />
+            <InputText class="border-2 border-slate-300" @bind-Value=@editingItem.Name />
+        </EditForm>
+    </div>
+    <div class="bg-green-300">
+        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.BoughtDateTime/>
+        </EditForm>
+    </div>
+    <div class="bg-green-300">
+        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)" OnInvalidSubmit="() => TurnOffEdit(false)">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime/>
+        </EditForm>   
+    </div>
+    <div class="bg-green-300">@ziskejAnoNe(editingItem)</div>
+    <div class="bg-green-300">
+        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)" >
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
+        </EditForm>
+    </div>
+        @if (isInNewMode != null && (bool)isInNewMode)
+        {
+            <div class="bg-green-300"></div>
+        }
+        else
+        {
+            <div class="bg-green-300">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2" @onclick="() => TurnOffEdit(true)">OK</button>
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2" @onclick="() => TurnOffEdit(false)">Zrusit</button>
+            </div>
+        }
+}
 @code
 {
-    [Parameter] public VybaveniVM Vyb { get; set; }
+    bool success = true;
+
+    [Parameter, EditorRequired] public VybaveniVM? Vyb
+    {
+        get;
+        set;
+    }
+    [Parameter] public bool? isInNewMode {get; set;}
+    VybaveniVM? editingItem { get; set; }
     [Parameter] public EventCallback SmazEventCallback { get; set; }
     [Parameter] public EventCallback RevizeEventCallback { get; set; }
-    [Parameter] public string BarvaRadku { get; set; }
+    [Parameter] public EventCallback EditModeEventCallback { get; set; }
+    [Parameter] public EventCallback EditDoneCallback { get; set; }
+
+    private void TurnOffEdit(bool success)
+    {
+        if (success)
+        {
+            if (editingItem != null && editingItem.IsValid())
+            {
+                editingItem?.MapTo(Vyb);
+            }
+            else
+            {
+                return;
+            }
+        }
+        if (Vyb is not null)
+            Vyb.IsInEditMode = false;
+        editingItem = null;
+        EditDoneCallback.InvokeAsync(success);
+    }
+
+    private void TurnOnEdit()
+    {
+        if (Vyb != null)
+        {
+            Vyb.IsInEditMode = true;
+            editingItem = Vyb.Copy();
+        }
+    }
+
+    string ziskejAnoNe(VybaveniVM v)
+    {
+        if (v.IsRevisionNeeded)
+        {
+            return "Ano";
+        }
+        return "Ne";
+    }
+
+    string ziskejBarvuRadku(VybaveniVM v)
+    {
+        if (v.IsRevisionNeeded)
+        {
+            return "bg-red-300";
+        }
+        return "bg-cyan-300";
+    }
 }

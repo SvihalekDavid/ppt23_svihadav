@@ -2,23 +2,48 @@
 @using Ppt23.Client.ViewModels
 @using Ppt23.Client.Components
 
-<div class="grid grid-cols-6">
+<div class="grid grid-cols-6 gap-y-5">
+
+@if (isInNewMode)
+{
 <div class="font-bold">Název</div>
 <div class="font-bold">Datum nákupu</div>
 <div class="font-bold">Datum poslední revize</div>
 <div class="font-bold">Potřebuje revizi?</div>
+<div class="font-bold">Cena</div>
+<div></div>
+
+<VybaveniRow isInNewMode="isInNewMode" EditDoneCallback="(success) => { if((bool)success)seznamVybaveni.Insert(0,v); isInNewMode = false; }" Vyb=v>
+</VybaveniRow>
+<button class="twbtn bg-teal-500">Přidej</button>
+<button type="button" @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
 <div></div>
 <div></div>
+<div></div>
+<div></div>
+
+}
+else
+{
+    <div><button @onclick="() => ZmenNewMode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Pridej novy zaznam</button></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div class="font-bold">Název</div>
+    <div class="font-bold">Datum nákupu</div>
+    <div class="font-bold">Datum poslední revize</div>
+    <div class="font-bold">Potřebuje revizi?</div>
+    <div class="font-bold">Cena</div>
+    <div></div>
+}
+
 @foreach (VybaveniVM vyb in seznamVybaveni)
 {
-   // <div>@vyb.Name</div>
-   // <div>@vyb.Name</div>
-   // <div>@vyb.Name</div>
-   // <div><button @onclick="() => seznamVybaveni.Remove(vyb)">smazat</button></div>
-
-   <VybaveniRow Vyb="vyb" SmazEventCallback="() => smazat(vyb)" RevizeEventCallback=" () => provedRevizi(vyb)" BarvaRadku=@urciBarvuRadku(vyb)>
+<VybaveniRow Vyb="vyb" SmazEventCallback="() => smazat(vyb)" RevizeEventCallback=" () => provedRevizi(vyb)" EditModeEventCallback=" () => editMode(vyb)" EditDoneCallback="(success) => { setVybToEditItem(); }">
         
-   </VybaveniRow>
+</VybaveniRow>
 }
 </div>
 
@@ -26,9 +51,28 @@
 {
     List<VybaveniVM> seznamVybaveni;
 
+    VybaveniVM v = new();
+
+    public bool isInNewMode { get; set; } = false;
+
     public Vybaveni_nemocnice()
     {
         seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+    }
+
+    void ZmenNewMode()
+    {
+        isInNewMode = !isInNewMode;
+    }
+
+    void setVybToEditItem()
+    {
+        
+    }
+
+    void pridejItem()
+    {
+        seznamVybaveni.Add(new VybaveniVM(VybaveniVM.VytvorRandomJmeno(),VybaveniVM.VytvorRandomDatumNakupu(), VybaveniVM.VytvorRandomDatumPosledniRevize()));
     }
 
     void smazat(VybaveniVM vyb)
@@ -44,13 +88,8 @@
         }
     }
 
-    string urciBarvuRadku(VybaveniVM vyb)
+    void editMode(VybaveniVM vyb)
     {
-        if (vyb.IsRevisionNeeded)
-        {
-            return "bg-red-300";
-        }
-        return "bg-white-300";
+        vyb.IsInEditMode = !vyb.IsInEditMode;
     }
-
 }
