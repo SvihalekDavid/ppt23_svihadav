@@ -1,6 +1,16 @@
-﻿@page "/vybaveni_nemocnice"
+﻿@page "/vybaveni"
 @using Ppt23.Client.ViewModels
 @using Ppt23.Client.Components
+@inject HttpClient Http
+
+@if (seznamVybaveni is null)
+{
+    <div class="absolute right-1/2 bottom-1/2  transform translate-x-1/2 translate-y-1/2 ">
+        <div class=" border-t-transparent border-solid animate-spin  rounded-full border-teal-600 border-8 h-16 w-16"></div>
+    </div>
+    <div>Nacitam</div>
+    return;
+}
 
 <div class="grid grid-cols-6 gap-y-5">
 
@@ -13,19 +23,15 @@
 <div class="font-bold">Cena</div>
 <div></div>
 
-<VybaveniRow isInNewMode="isInNewMode" EditDoneCallback="(success) => { if((bool)success)seznamVybaveni.Insert(0,v); isInNewMode = false; }" Vyb=v>
+        <VybaveniRow EditDoneCallback="async (Vyb) => {isInNewMode = false;await PridatVybaveni((VybaveniVM)Vyb);}" Vyb=v IsInEditMode=true>
+    <button @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
 </VybaveniRow>
-<button class="twbtn bg-teal-500">Přidej</button>
-<button type="button" @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
-<div></div>
-<div></div>
-<div></div>
-<div></div>
-
 }
 else
 {
-    <div><button @onclick="() => ZmenNewMode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Pridej novy zaznam</button></div>
+    <button class="twbtn bg-sky-500" @onclick="()=> {v = null;isInNewMode = true;}">
+        Nový kus
+    </button>
     <div></div>
     <div></div>
     <div></div>
@@ -41,7 +47,7 @@ else
 
 @foreach (VybaveniVM vyb in seznamVybaveni)
 {
-<VybaveniRow Vyb="vyb" SmazEventCallback="() => smazat(vyb)" RevizeEventCallback=" () => provedRevizi(vyb)" EditModeEventCallback=" () => editMode(vyb)" EditDoneCallback="(success) => { setVybToEditItem(); }">
+<VybaveniRow Vyb="vyb" SmazEventCallback="() => SmazVybaveni(vyb)" RevizeEventCallback=" () => provedRevizi(vyb)" EditDoneCallback="(Vyb) => UpravVybaveni((VybaveniVM)Vyb)">
         
 </VybaveniRow>
 }
@@ -49,15 +55,22 @@ else
 
 @code
 {
-    List<VybaveniVM> seznamVybaveni;
+    List<VybaveniVM>? seznamVybaveni;
 
-    VybaveniVM v = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(1000);
+        seznamVybaveni = await Http.GetFromJsonAsync<List<VybaveniVM>>("vybaveni");
+    }
+
+    VybaveniVM? v = new();
 
     public bool isInNewMode { get; set; } = false;
 
     public Vybaveni_nemocnice()
     {
-        seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+        //seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+        // v = new();
     }
 
     void ZmenNewMode()
@@ -65,19 +78,53 @@ else
         isInNewMode = !isInNewMode;
     }
 
-    void setVybToEditItem()
+    void dejVybDoV(VybaveniVM Vyb)
     {
-        
+        v = Vyb.Copy();
     }
 
     void pridejItem()
     {
-        seznamVybaveni.Add(new VybaveniVM(VybaveniVM.VytvorRandomJmeno(),VybaveniVM.VytvorRandomDatumNakupu(), VybaveniVM.VytvorRandomDatumPosledniRevize()));
+        seznamVybaveni.Add(new VybaveniVM(Guid.NewGuid(), VybaveniVM.VytvorRandomJmeno(), VybaveniVM.VytvorRandomDatumNakupu(), VybaveniVM.VytvorRandomDatumPosledniRevize()));
     }
 
-    void smazat(VybaveniVM vyb)
+    //void smazat(VybaveniVM vyb)
+    //{
+    //    seznamVybaveni.Remove(vyb);
+    //}
+    async Task SmazVybaveni(VybaveniVM vyb)
     {
-        seznamVybaveni.Remove(vyb);
+        var odpoved = await Http.DeleteAsync($"vybaveni/{vyb.Id}");
+        if (odpoved.IsSuccessStatusCode)
+            seznamVybaveni?.Remove(vyb);
+    }
+
+    async Task UpravVybaveni(VybaveniVM vyb)
+    {
+        var odpoved = await Http.PutAsJsonAsync($"vybaveni/{vyb.Id}", vyb);
+        if (odpoved.IsSuccessStatusCode)
+        {
+            var aktualizovaneVybaveni = await odpoved.Content.ReadFromJsonAsync<VybaveniVM>();
+            var index = seznamVybaveni.FindIndex(v => v.Id == aktualizovaneVybaveni.Id);
+            seznamVybaveni[index] = aktualizovaneVybaveni;
+            Console.WriteLine("ano");
+        }
+    }
+
+    async Task PridatVybaveni(VybaveniVM vyb)
+    {
+        try
+        {
+            var odpoved = await Http.PostAsJsonAsync("vybaveni", vyb);
+            if (odpoved.IsSuccessStatusCode)
+            {
+                seznamVybaveni.Insert(0, vyb);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     void provedRevizi(VybaveniVM vyb)
@@ -86,10 +133,5 @@ else
         {
             vyb.LastRevisionDateTime = DateTime.Now;
         }
-    }
-
-    void editMode(VybaveniVM vyb)
-    {
-        vyb.IsInEditMode = !vyb.IsInEditMode;
     }
 }

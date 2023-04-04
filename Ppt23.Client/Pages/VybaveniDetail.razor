@@ -1,0 +1,23 @@
+﻿@page "/vybaveni/{Id:guid}"
+@using Ppt23.Client.ViewModels
+@using Ppt23.Client.Components
+@inject HttpClient Http
+
+@if (vybaveni == null) return;
+
+<h3>VybaveniDetail @Id</h3>
+<div class="grid grid-cols-2">
+    <div>Název</div>
+    <div>@vybaveni.Name</div>
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    VybaveniVM? vybaveni;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var vyb = await Http.GetFromJsonAsync<VybaveniVM>($"vybaveni/{Id}");
+        vybaveni = vyb;
+    }
+}

@@ -8,13 +8,11 @@ public class VybaveniVM
     [Required] 
     [MinLength(5, ErrorMessage = "Délka u pole \"{0}\" musí být alespoň {1} znaků")]
     [Display(Name = "Název")]
+
+    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public DateTime BoughtDateTime { get; set; }
     public DateTime LastRevisionDateTime { get; set; }
-
-    public bool IsInEditMode { get; set; } = false;
-
-    public bool IsInNewMode { get; set; } = false;
 
     [Required, Range(0,10000000, ErrorMessage= "Cena musí být v rozmezí 0-10000000")]
     public int Cena { get; set; }
@@ -33,21 +31,21 @@ public class VybaveniVM
         } 
     }
 
-    public VybaveniVM(string Name, DateTime BoughtDateTime, DateTime LastRevisionDateTime, bool isInEditMode = false, int Cena = 0)
+    public VybaveniVM(Guid id, string Name, DateTime BoughtDateTime, DateTime LastRevisionDateTime, int Cena = 0)
     {
+        Id = id;
         this.Name = Name;
         this.BoughtDateTime = BoughtDateTime;
         this.LastRevisionDateTime = LastRevisionDateTime;
-        this.IsInEditMode = isInEditMode;
         this.Cena = Cena;
     }
 
-    public VybaveniVM(bool isInEditMode = false)
+    public VybaveniVM()
     {
-        this.Name = "Nove vybaveni";
+        Id = Guid.NewGuid();
+        this.Name = "";
         this.BoughtDateTime = DateTime.Now;
         this.LastRevisionDateTime = DateTime.Now;
-        this.IsInEditMode = isInEditMode;
         this.Cena = 0;
     }
 
@@ -57,7 +55,7 @@ public class VybaveniVM
         List<VybaveniVM> listVybaveni = new List<VybaveniVM>();
         for (int i = 0; i < pocet; ++i)
         {
-            VybaveniVM vybaveni = new VybaveniVM(VytvorRandomJmeno(),VytvorRandomDatumNakupu(), VytvorRandomDatumPosledniRevize());
+            VybaveniVM vybaveni = new VybaveniVM(Guid.NewGuid(), VytvorRandomJmeno(),VytvorRandomDatumNakupu(), VytvorRandomDatumPosledniRevize());
             listVybaveni.Add(vybaveni);
         }
 
@@ -92,7 +90,7 @@ public class VybaveniVM
     }
     public VybaveniVM Copy()
     {
-        VybaveniVM to = new(this.Name, this.BoughtDateTime, this.LastRevisionDateTime, this.IsInEditMode, this.Cena);
+        VybaveniVM to = new(this.Id, this.Name, this.BoughtDateTime, this.LastRevisionDateTime, this.Cena);
         return to;
     }
 
@@ -103,7 +101,6 @@ public class VybaveniVM
         to.LastRevisionDateTime = LastRevisionDateTime;
         to.Name = Name;
         to.Cena = Cena; 
-        to.IsInEditMode = IsInEditMode;
     }
 
     public bool IsValid()

@@ -1,14 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms;
 @using Ppt23.Client.ViewModels;
 
-@if (Vyb == null) return;
 
-@if (isInNewMode != null && (bool)isInNewMode)
-{
-    TurnOnEdit();
+@{
+    if (Vyb == null && IsInEditMode)
+    {
+        Vyb = new();
+        TurnOnEdit();
+    }
 }
 
-@if (Vyb != null && !Vyb.IsInEditMode)
+@if (Vyb != null && !IsInEditMode)
 {
     <div class=@ziskejBarvuRadku(Vyb)>@Vyb.Name</div>
     <div class=@ziskejBarvuRadku(Vyb)>@Vyb.BoughtDateTime.ToString("yyyy-MM-dd")</div>
@@ -21,7 +23,7 @@
         <button @onclick="() => TurnOnEdit()" class="border-[1px] border-amber-600 rounded-sm text-sm px-2 py-2">✏️</button>
     </div>
 }
-else if (editingItem != null && editingItem.IsInEditMode)
+else if (editingItem != null && IsInEditMode)
 {
     <div class="bg-green-300">
         <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
@@ -52,17 +54,24 @@ else if (editingItem != null && editingItem.IsInEditMode)
             <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
         </EditForm>
     </div>
-        @if (isInNewMode != null && (bool)isInNewMode)
+    <div class="bg-green-300">
+        @if (ChildContent == null)
         {
-            <div class="bg-green-300"></div>
+            <button @onclick="() => TurnOffEdit(true)" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2">
+                Ok
+            </button>
+            <button @onclick="() => TurnOffEdit(false)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2">
+                zruš
+            </button>
         }
         else
         {
-            <div class="bg-green-300">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2" @onclick="() => TurnOffEdit(true)">OK</button>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2" @onclick="() => TurnOffEdit(false)">Zrusit</button>
-            </div>
+            <button @onclick="() => TurnOffEdit(true)" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2">
+                Ok
+            </button>
+            @ChildContent
         }
+    </div>
 }
 @code
 {
@@ -73,12 +82,12 @@ else if (editingItem != null && editingItem.IsInEditMode)
         get;
         set;
     }
-    [Parameter] public bool? isInNewMode {get; set;}
+    [Parameter] public bool IsInEditMode { get; set; }
     VybaveniVM? editingItem { get; set; }
     [Parameter] public EventCallback SmazEventCallback { get; set; }
     [Parameter] public EventCallback RevizeEventCallback { get; set; }
-    [Parameter] public EventCallback EditModeEventCallback { get; set; }
     [Parameter] public EventCallback EditDoneCallback { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private void TurnOffEdit(bool success)
     {
@@ -94,16 +103,19 @@ else if (editingItem != null && editingItem.IsInEditMode)
             }
         }
         if (Vyb is not null)
-            Vyb.IsInEditMode = false;
+            IsInEditMode = false;
         editingItem = null;
-        EditDoneCallback.InvokeAsync(success);
+        if (success)
+        {
+            EditDoneCallback.InvokeAsync(Vyb);
+        }
     }
 
     private void TurnOnEdit()
     {
         if (Vyb != null)
         {
-            Vyb.IsInEditMode = true;
+            IsInEditMode = true;
             editingItem = Vyb.Copy();
         }
     }
