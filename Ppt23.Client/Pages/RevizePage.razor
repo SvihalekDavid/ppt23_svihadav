@@ -1,21 +1,22 @@
 ﻿@page "/revize/{Id}"
-@using Ppt23.Client.ViewModels
 @using Ppt23.Client.Components
+@using Ppt23.Shared
 @inject HttpClient Http
 
 <h1 class="text-green-500">@Id</h1>
 <input class="border-2" type="text" @bind-value="inputText" />
 <button type="submit" class="twbtn bg-yellow-500 border-2" @onclick="() => Hledej()">Hledej</button>
-<div>@inputText</div>
-@foreach (VybaveniVM vyb in seznamVybaveni2)
+
+@if (seznamRevizi is not null)
 {
-    <div>@vyb.Name</div>
+    <div class="grid grid-cols-2">
 
-    <div>@vyb.BoughtDateTime</div>
-
-    <div>@vyb.LastRevisionDateTime</div>
-
-    <div>@vyb.Cena</div>
+        @foreach (RevizeViewModel r in seznamRevizi)
+        {
+            <div> Id: @r.Id </div>
+            <div> Nazev: @r.Name</div>
+        }
+    </div>
 }
 
 @code {
@@ -23,26 +24,11 @@
 
     private string? inputText { get; set; }
 
-    List<VybaveniVM>? seznamVybaveni;
-    List<VybaveniVM> seznamVybaveni2 = new();
+    List<RevizeViewModel>? seznamRevizi;
 
-    //protected override async Task OnInitializedAsync()
-    //{
-    //    //var vyb = await Http.GetFromJsonAsync<VybaveniVM>($"vybaveni/{Id}");
-    //    //vybaveni = vyb;
-    //}
-
-    async Task Hledej()
+    private async void Hledej()
     {
-        seznamVybaveni2 = new();
-        seznamVybaveni = await Http.GetFromJsonAsync<List<VybaveniVM>>("vybaveni");
-        foreach (VybaveniVM v in seznamVybaveni)
-        {
-            if (v.Name.Contains(inputText))
-            {
-                seznamVybaveni2.Add(v);
-            }
-        }
-
+        seznamRevizi = await Http.GetFromJsonAsync<List<RevizeViewModel>>($"revize/{inputText}");
+        return;
     }
 }

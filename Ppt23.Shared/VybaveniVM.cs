@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace Ppt23.Client.ViewModels;
+namespace Ppt23.Shared;
 
 public class VybaveniVM
 {

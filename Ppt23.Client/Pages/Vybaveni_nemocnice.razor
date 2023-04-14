@@ -1,5 +1,5 @@
 ﻿@page "/vybaveni"
-@using Ppt23.Client.ViewModels
+@using Ppt23.Shared
 @using Ppt23.Client.Components
 @inject HttpClient Http
 
@@ -23,7 +23,7 @@
 <div class="font-bold">Cena</div>
 <div></div>
 
-        <VybaveniRow EditDoneCallback="async (Vyb) => {isInNewMode = false;await PridatVybaveni((VybaveniVM)Vyb);}" Vyb=v IsInEditMode=true>
+<VybaveniRow EditDoneCallback="async (Vyb) => {isInNewMode = false;await PridatVybaveni((VybaveniVM)Vyb);}" Vyb=v IsInEditMode=true>
     <button @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
 </VybaveniRow>
 }

@@ -1,5 +1,6 @@
 using System.Net.Security;
-using Ppt23.Client.ViewModels;
+using Microsoft.AspNetCore.Components.Forms;
+using Ppt23.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
 //var summaries = new[]
 //{
 //    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -34,6 +36,26 @@ List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
 app.MapGet("/vybaveni", () =>
 {
     return seznamVybaveni;
+});
+
+app.MapGet("/revize", () =>
+{
+    return seznamRevizi;
+});
+
+app.MapGet("/revize/{Name}", (string Name) =>
+{
+    List<RevizeViewModel> seznamVyhledanychRevizi = new(); 
+    foreach (RevizeViewModel r in seznamRevizi)
+    {
+        if (r.Name.Contains(Name))
+        {
+            seznamVyhledanychRevizi.Add(r);
+        }
+    }
+    if (seznamVyhledanychRevizi.Count == 0)
+        return Results.NotFound("Zadne vysledky!");
+    return Results.Ok(seznamVyhledanychRevizi);
 });
 
 app.MapGet("/vybaveni/{id}", (Guid id) =>
