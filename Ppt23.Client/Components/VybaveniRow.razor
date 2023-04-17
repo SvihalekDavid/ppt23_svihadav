@@ -31,7 +31,7 @@ else if (editingItem != null && IsInEditMode)
         <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime />
         <div class="bg-green-300">@ziskejAnoNe(editingItem)</div>
         <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
-        <ValidationMessage For="@(() => editingItem.Name)" class="text-xs"/>
+        <ValidationMessage For="@(() => editingItem.Name)" class="text-xs text-red-500"/>
         <ValidationMessage For="@(() => editingItem.Cena)" class="text-xs text-red-500"/>
 
     </EditForm>
