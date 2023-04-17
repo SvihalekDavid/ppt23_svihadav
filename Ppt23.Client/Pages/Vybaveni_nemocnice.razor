@@ -24,12 +24,12 @@
 <div></div>
 
 <VybaveniRow EditDoneCallback="async (Vyb) => {isInNewMode = false;await PridatVybaveni((VybaveniVM)Vyb);}" Vyb=v IsInEditMode=true>
-    <button @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
+    <button type="button" @onclick="() => isInNewMode = false" class="twbtn bg-yellow-500">Zrušit</button>
 </VybaveniRow>
 }
 else
 {
-    <button class="twbtn bg-sky-500" @onclick="()=> {v = null;isInNewMode = true;}">
+    <button class="twbtn bg-sky-500" @onclick="()=> {v = new();isInNewMode = true;}">
         Nový kus
     </button>
     <div></div>
@@ -63,7 +63,7 @@ else
         seznamVybaveni = await Http.GetFromJsonAsync<List<VybaveniVM>>("vybaveni");
     }
 
-    VybaveniVM? v = new();
+    VybaveniVM? v;
 
     public bool isInNewMode { get; set; } = false;
 
@@ -107,7 +107,6 @@ else
             var aktualizovaneVybaveni = await odpoved.Content.ReadFromJsonAsync<VybaveniVM>();
             var index = seznamVybaveni.FindIndex(v => v.Id == aktualizovaneVybaveni.Id);
             seznamVybaveni[index] = aktualizovaneVybaveni;
-            Console.WriteLine("ano");
         }
     }
 

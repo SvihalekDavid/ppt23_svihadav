@@ -5,16 +5,14 @@ namespace Ppt23.Shared;
 
 public class VybaveniVM
 {
+    public Guid Id { get; set; }
     [Required] 
     [MinLength(5, ErrorMessage = "Délka u pole \"{0}\" musí být alespoň {1} znaků")]
-    [Display(Name = "Název")]
-
-    public Guid Id { get; set; }
     public string Name { get; set; } = "";
     public DateTime BoughtDateTime { get; set; }
     public DateTime LastRevisionDateTime { get; set; }
 
-    [Required, Range(0,10000000, ErrorMessage= "Cena musí být v rozmezí 0-10000000")]
+    [Required, Range(0,10000000, ErrorMessage = "Cena musí být v rozmezí 0-10000000")]
     public int Cena { get; set; }
 
     public bool IsRevisionNeeded 

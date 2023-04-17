@@ -3,9 +3,8 @@
 
 
 @{
-    if (Vyb == null && IsInEditMode)
+    if (editingItem == null && IsInEditMode)
     {
-        Vyb = new();
         TurnOnEdit();
     }
 }
@@ -25,35 +24,17 @@
 }
 else if (editingItem != null && IsInEditMode)
 {
-    <div class="bg-green-300">
-        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
-            <DataAnnotationsValidator /> 
-            <ValidationSummary />
-            <InputText class="border-2 border-slate-300" @bind-Value=@editingItem.Name />
-        </EditForm>
-    </div>
-    <div class="bg-green-300">
-        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.BoughtDateTime/>
-        </EditForm>
-    </div>
-    <div class="bg-green-300">
-        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)" OnInvalidSubmit="() => TurnOffEdit(false)">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime/>
-        </EditForm>   
-    </div>
-    <div class="bg-green-300">@ziskejAnoNe(editingItem)</div>
-    <div class="bg-green-300">
-        <EditForm Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)" >
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
-        </EditForm>
-    </div>
+    <EditForm class="bg-green-300 col-span-5 grid grid-cols-5" Model=@editingItem OnValidSubmit="() => TurnOffEdit(true)">
+        <DataAnnotationsValidator /> 
+        <InputText class="border-2 border-slate-300" @bind-Value=@editingItem.Name />
+        <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.BoughtDateTime />
+        <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime />
+        <div class="bg-green-300">@ziskejAnoNe(editingItem)</div>
+        <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
+        <ValidationMessage For="@(() => editingItem.Name)" class="text-xs"/>
+        <ValidationMessage For="@(() => editingItem.Cena)" class="text-xs text-red-500"/>
+
+    </EditForm>
     <div class="bg-green-300">
         @if (ChildContent == null)
         {
@@ -66,9 +47,7 @@ else if (editingItem != null && IsInEditMode)
         }
         else
         {
-            <button @onclick="() => TurnOffEdit(true)" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2">
-                Ok
-            </button>
+            <button @onclick="() => TurnOffEdit(true)" type="submit" class="twbtn bg-blue-500">Pridej</button>
             @ChildContent
         }
     </div>
@@ -91,6 +70,7 @@ else if (editingItem != null && IsInEditMode)
 
     private void TurnOffEdit(bool success)
     {
+        Console.WriteLine("turnoff edit on");
         if (success)
         {
             if (editingItem != null && editingItem.IsValid())
@@ -102,8 +82,7 @@ else if (editingItem != null && IsInEditMode)
                 return;
             }
         }
-        if (Vyb is not null)
-            IsInEditMode = false;
+        IsInEditMode = false;
         editingItem = null;
         if (success)
         {
@@ -113,11 +92,12 @@ else if (editingItem != null && IsInEditMode)
 
     private void TurnOnEdit()
     {
-        if (Vyb != null)
+        if (Vyb == null)
         {
-            IsInEditMode = true;
-            editingItem = Vyb.Copy();
+            return;
         }
+        IsInEditMode = true;
+        editingItem = Vyb.Copy();
     }
 
     string ziskejAnoNe(VybaveniVM v)
