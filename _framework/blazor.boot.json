@@ -1,6 +1,9 @@
 {
   "cacheBootResources": true,
-  "config": [ ],
+  "config": [
+    "appsettings.Development.json",
+    "appsettings.json"
+  ],
   "debugBuild": false,
   "entryAssembly": "Ppt23.Client",
   "icuDataMode": 0,
