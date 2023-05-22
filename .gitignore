@@ -37,3 +37,9 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
+
+mojeDatabaze.db
+mojeDatabaze.db-shm
+mojeDatabaze.db-wal
+
+*.db

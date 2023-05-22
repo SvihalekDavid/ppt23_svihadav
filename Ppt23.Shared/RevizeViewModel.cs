@@ -12,6 +12,12 @@ namespace Ppt23.Shared
 
         public string Name { get; set; } = "";
 
+        public RevizeViewModel()
+        {
+            this.Id = Guid.NewGuid();
+            this.Name = "";
+        }
+
         public RevizeViewModel(Guid id, string Name)
         {
             this.Id = id;
