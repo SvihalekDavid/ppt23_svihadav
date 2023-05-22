@@ -6,6 +6,7 @@ namespace PPT23.API.Data
     {
         public Guid Id { get; set; }
 
+        //
         public string Name { get; set; } = "";
 
         public Revize(Guid id, string Name)
