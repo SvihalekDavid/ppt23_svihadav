@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - ppt23-svihadav
+name: Build and deploy ASP.Net Core app to Azure Web App - ppt23-tesy
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
-          
+
       - name: Publish with dotnet #do určené složky publikuje aplikace, v release configuraci
         run: dotnet publish PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
         # ☝️ Upravte dle názvu vašeho .sln
@@ -51,7 +51,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'ppt23-svihadav'
+          app-name: 'ppt23-svihadav1'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_46D581E8EE33434593B7CDE9682188DB }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A592AE8C5BDC4EB7A272D3F027CAAF62 }}
           package: .
