@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'ppt23-svihadav1'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_149216E4ABF7441EBDB923AB95194FB0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A592AE8C5BDC4EB7A272D3F027CAAF62 }}
           package: .
