@@ -8,8 +8,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-env: #proměnné, které můžeme používat dále pomocí env.PUBLISH_DIR
-  PUBLISH_DIR: vystup #výstupní složka kam se vybuildí aplikace (tuhle složku to vytvoří, na názvu nezáleží)
 
 jobs:
   build:
@@ -23,16 +21,18 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
-          
-      - name: Publish with dotnet #do určené složky publikuje aplikace, v release configuraci
-        run: dotnet publish PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
-        # ☝️ Upravte dle názvu vašeho .sln
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: .net-app
-          path: ${{env.PUBLISH_DIR}}
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'ppt23-svihadav'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_61E7DD22A0CC418681C7CAF9D24BB234 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_99961CA45F064E94BFABE5B2B30B4563 }}
           package: .
