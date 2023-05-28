@@ -21,7 +21,9 @@ builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy =>
 
 Console.WriteLine(builder.Configuration["AllowedOrigins"]);
 
-builder.Services.AddDbContext<PptDbContext>(opt => opt.UseSqlite("FileName=mojeDatabaze.db"));
+string? sqliteDbPath = builder.Configuration[nameof(sqliteDbPath)];
+ArgumentNullException.ThrowIfNull(sqliteDbPath);
+builder.Services.AddDbContext<PptDbContext>(opt => opt.UseSqlite($"FileName={sqliteDbPath}"));
 
 var app = builder.Build();
 app.UseCors(x => x
