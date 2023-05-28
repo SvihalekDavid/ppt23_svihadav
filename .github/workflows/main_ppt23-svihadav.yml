@@ -23,7 +23,7 @@ jobs:
         with:
           dotnet-version: '7.x'
           include-prerelease: true
-          
+
       - name: Publish with dotnet #do určené složky publikuje aplikace, v release configuraci
         run: dotnet publish PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
         # ☝️ Upravte dle názvu vašeho .sln
@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'ppt23-svihadav'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_61E7DD22A0CC418681C7CAF9D24BB234 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_99961CA45F064E94BFABE5B2B30B4563 }}
           package: .
