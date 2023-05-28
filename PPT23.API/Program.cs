@@ -40,10 +40,21 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(1);
 List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
-//var summaries = new[]
-//{
-//    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-//};
+
+
+using var appContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<PptDbContext>();
+try
+{
+    appContext.Database.Migrate();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Exception during db migration {ex.Message}");
+    VybaveniVM v = new VybaveniVM();
+    v.Name = $"Exception during db migration {ex.Message}";
+    seznamVybaveni.Add(v);
+    //throw;
+}
 
 app.MapGet("/vybaveni", (PptDbContext db) =>
 {
@@ -121,17 +132,5 @@ app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel) =>
     item.Cena = prichoziModel.Cena;
     return Results.Ok();
 });
-
-
-using var appContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<PptDbContext>();
-try
-{
-    appContext.Database.Migrate();
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Exception during db migration {ex.Message}");
-    //throw;
-}
 
 app.Run();
