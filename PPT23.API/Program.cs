@@ -38,7 +38,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(1);
 List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
 //var summaries = new[]
 //{
@@ -55,30 +55,9 @@ app.MapGet("/vybaveni", (PptDbContext db) =>
     catch (Exception ex)
     {
         Console.WriteLine($"Exception during: {ex.Message}");
-        string fileName = @"C:\Users\Sviha\Desktop\ppt23_svihadav\PPT23.API\log.txt";
-        try
-        {
-            // Check if file already exists. If yes, delete it.     
-            if (File.Exists(fileName))
-            {
-                File.Delete(fileName);
-            }
-
-            // Create a new file     
-            using (FileStream fs = File.Create(fileName))
-            {
-                // Add some text to file    
-                Byte[] title = new UTF8Encoding(true).GetBytes(ex.ToString());
-                fs.Write(title, 0, title.Length);
-                byte[] author = new UTF8Encoding(true).GetBytes("Mahesh Chand");
-                fs.Write(author, 0, author.Length);
-            }
-        }
-        catch (Exception Ex)
-        {
-            Console.WriteLine(Ex.ToString());
-        }
-        //throw;
+        VybaveniVM v = new VybaveniVM();
+        v.Name = ex.ToString();
+        seznamVybaveni.Add(v);
     }
     return seznamVybaveni;
 });
