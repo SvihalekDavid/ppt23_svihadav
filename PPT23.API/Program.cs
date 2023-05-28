@@ -1,9 +1,6 @@
 using System.Net.Security;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.EntityFrameworkCore;
 using Ppt23.Shared;
-using PPT23.API.Data;
-using Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +15,7 @@ builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy =>
     .AllowAnyHeader()
 ));
 
-
 Console.WriteLine(builder.Configuration["AllowedOrigins"]);
-
-builder.Services.AddDbContext<PptDbContext>(opt => opt.UseSqlite("FileName=mojeDatabaze.db"));
-
 
 var app = builder.Build();
 app.UseCors();
@@ -34,73 +27,96 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Services.CreateScope().ServiceProvider
-  .GetRequiredService<PptDbContext>()
-  .Database.Migrate();
-
 app.UseHttpsRedirection();
 List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
 List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
+//var summaries = new[]
+//{
+//    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+//};
 
-app.MapGet("/vybaveni", (PptDbContext db) =>
+app.MapGet("/vybaveni", () =>
 {
     return seznamVybaveni;
-    //List<VybaveniVM> destinations = db.MakeListVybaveniVM();
-    //return destinations;
 });
 
-app.MapGet("/revize", (PptDbContext db) =>
+app.MapGet("/revize", () =>
 {
-    List<RevizeViewModel> destinations = db.MakeListRevizeVM();
-    return destinations;
+    return seznamRevizi;
 });
 
-app.MapGet("/revize/{Name}", (string Name, PptDbContext db) =>
+app.MapGet("/revize/{Name}", (string Name) =>
 {
-    List<RevizeViewModel> listR = db.FindRevizeVM(Name);
-    if (listR.Count == 0)
+    List<RevizeViewModel> seznamVyhledanychRevizi = new();
+    foreach (RevizeViewModel r in seznamRevizi)
+    {
+        if (r.Name.Contains(Name))
+        {
+            seznamVyhledanychRevizi.Add(r);
+        }
+    }
+    if (seznamVyhledanychRevizi.Count == 0)
         return Results.NotFound("Zadne vysledky!");
-    return Results.Ok(listR);
+    return Results.Ok(seznamVyhledanychRevizi);
 });
 
-app.MapGet("/vybaveni/{id}", (Guid id, PptDbContext db) =>
+app.MapGet("/vybaveni/{id}", (Guid id) =>
 {
-    VybaveniVM? item = db.FindVybaveniVM(id);
-    if (item is null)
+    VybaveniVM? en = seznamVybaveni.SingleOrDefault(x => x.Id == id);
+    if (en is null)
         return Results.NotFound("Item Not Found!");
-    return Results.Ok(item);
+    return Results.Ok(en);
 });
 
 
-app.MapPost("/vybaveni", (VybaveniVM prichoziModel, PptDbContext db) =>
+app.MapPost("/vybaveni", (VybaveniVM prichoziModel) =>
 {
-    prichoziModel.Id = Guid.Empty;
-    //Vybaveni en = Vybaveni.MakeVybaveniFromVybaveniVM(prichoziModel);
-    var en = prichoziModel.Adapt<Vybaveni>();
-    db.Vybavenis.Add(en);
-    db.SaveChanges();
-    return en.Id;
+    seznamVybaveni.Remove(prichoziModel);
+    prichoziModel.Id = Guid.NewGuid();
+    seznamVybaveni.Insert(0, prichoziModel);
+    return prichoziModel.Id;
 });
 
-app.MapDelete("/vybaveni/{Id}", (Guid Id, PptDbContext db) =>
+app.MapDelete("/vybaveni/{Id}", (Guid Id) =>
 {
-    Vybaveni? item = db.FindVybaveni(Id);
+    var item = seznamVybaveni.SingleOrDefault(x => x.Id == Id);
     if (item == null)
         return Results.NotFound("Tato položka nebyla nalezena!!");
-    db.Vybavenis.Remove(item);
-    db.SaveChanges();
+    seznamVybaveni.Remove(item);
     return Results.Ok();
 }
 );
 
-app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel, PptDbContext db) =>
+app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel) =>
 {
-    Vybaveni? item = db.FindVybaveni(prichoziModel.Id);
+    var item = seznamVybaveni.SingleOrDefault(x => x.Id == prichoziModel.Id);
     if (item == null)
         return Results.NotFound("Tato položka nebyla nalezena!!");
-    db.UpdateVybaveni(prichoziModel);
-    db.SaveChanges();
+
+    item.Name = prichoziModel.Name;
+    item.BoughtDateTime = prichoziModel.BoughtDateTime;
+    item.LastRevisionDateTime = prichoziModel.LastRevisionDateTime;
+    item.Cena = prichoziModel.Cena;
     return Results.Ok();
 });
+//app.MapGet("/weatherforecast", () =>
+//{
+//    var forecast = Enumerable.Range(1, 5).Select(index =>
+//        new WeatherForecast
+//        (
+//            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+//            Random.Shared.Next(-20, 55),
+//            summaries[Random.Shared.Next(summaries.Length)]
+//        ))
+//        .ToArray();
+//    return forecast;
+//})
+//.WithName("GetWeatherForecast")
+//.WithOpenApi();
 
 app.Run();
+
+//internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+//{
+//    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+//}
