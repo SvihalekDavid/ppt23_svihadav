@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Ppt23.Shared;
 using PPT23.API.Data;
+using Mapster;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +48,7 @@ app.MapGet("/vybaveni", (PptDbContext db) =>
 {
     try
     {
-        List<VybaveniVM> destinations = db.MakeListVybaveniVM();
+        List<VybaveniVM> destinations = db.Vybavenis.ProjectToType<VybaveniVM>().ToList();
         return destinations;
     }
     catch (Exception ex)
