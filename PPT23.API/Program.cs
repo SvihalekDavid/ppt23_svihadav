@@ -53,7 +53,7 @@ catch (Exception ex)
     VybaveniVM v = new VybaveniVM();
     v.Name = $"Exception during db migration {ex.Message}";
     seznamVybaveni.Add(v);
-    //throw;
+    //throww;
 }
 
 app.MapGet("/vybaveni", (PptDbContext db) =>
