@@ -39,16 +39,14 @@ app.Services.CreateScope().ServiceProvider
   .Database.Migrate();
 
 app.UseHttpsRedirection();
+List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
 List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
-//var summaries = new[]
-//{
-//    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-//};
 
 app.MapGet("/vybaveni", (PptDbContext db) =>
 {
-    List<VybaveniVM> destinations = db.MakeListVybaveniVM();
-    return destinations;
+    return seznamVybaveni;
+    //List<VybaveniVM> destinations = db.MakeListVybaveniVM();
+    //return destinations;
 });
 
 app.MapGet("/revize", (PptDbContext db) =>
