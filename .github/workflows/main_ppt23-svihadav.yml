@@ -28,7 +28,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish  PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
+        run: dotnet publish PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
