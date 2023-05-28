@@ -43,9 +43,10 @@ List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
 //    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 //};
 
-app.MapGet("/vybaveni", () =>
+app.MapGet("/vybaveni", (PptDbContext db) =>
 {
-    return seznamVybaveni;
+    List<VybaveniVM> destinations = db.MakeListVybaveniVM();
+    return destinations;
 });
 
 app.MapGet("/revize", () =>
