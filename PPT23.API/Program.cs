@@ -35,6 +35,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.Services.CreateScope().ServiceProvider
+  .GetRequiredService<PptDbContext>()
+  .Database.Migrate();
+
 app.UseHttpsRedirection();
 List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(10);
 List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
