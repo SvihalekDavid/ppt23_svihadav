@@ -45,8 +45,9 @@ List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
 
 app.MapGet("/vybaveni", (PptDbContext db) =>
 {
-    List<VybaveniVM> destinations = db.MakeListVybaveniVM();
-    return destinations;
+    return seznamVybaveni;
+    //List<VybaveniVM> destinations = db.MakeListVybaveniVM();
+    //return destinations;
 });
 
 app.MapGet("/revize", () =>
