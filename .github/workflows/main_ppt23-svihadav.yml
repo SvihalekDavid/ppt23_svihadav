@@ -24,8 +24,9 @@ jobs:
           dotnet-version: '7.x'
           include-prerelease: true
 
-      - name: dotnet publish
-        run: dotnet publish ppt23_svihadav/PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
+      - name: Publish with dotnet #do určené složky publikuje aplikace, v release configuraci
+        run: dotnet publish PPT23.API/PPT23.API.csproj --configuration Release --output ${{env.PUBLISH_DIR}}
+        # ☝️ Upravte dle názvu vašeho .sln
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
