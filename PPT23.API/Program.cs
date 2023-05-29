@@ -40,8 +40,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-List<VybaveniVM> seznamVybaveni = VybaveniVM.VratRandSeznam(1);
-List<RevizeViewModel> seznamRevizi = RevizeViewModel.VratRandSeznam(10);
 
 
 using var appContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<PptDbContext>();
@@ -52,86 +50,64 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Exception during db migration {ex.Message}");
-    VybaveniVM v = new VybaveniVM();
-    v.Name = $"Exception during db migration {ex.Message}";
-    seznamVybaveni.Add(v);
-    //throww;
 }
 
 app.MapGet("/vybaveni", (PptDbContext db) =>
 {
-    try
-    {
-        List<VybaveniVM> destinations = db.Vybavenis.ProjectToType<VybaveniVM>().ToList();
-        return destinations;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Exception during: {ex.Message}");
-        VybaveniVM v = new VybaveniVM();
-        v.Name = ex.ToString();
-        seznamVybaveni.Add(v);
-    }
-    return seznamVybaveni;
+    List<VybaveniVM> destinations = db.Vybavenis.ProjectToType<VybaveniVM>().ToList();
+    return destinations;
 });
 
-app.MapGet("/revize", () =>
+app.MapGet("/revize", (PptDbContext db) =>
 {
-    return seznamRevizi;
+    List<RevizeViewModel> destinations = db.MakeListRevizeVM();
+    return destinations;
 });
 
-app.MapGet("/revize/{Name}", (string Name) =>
+app.MapGet("/revize/{Name}", (string Name, PptDbContext db) =>
 {
-    List<RevizeViewModel> seznamVyhledanychRevizi = new();
-    foreach (RevizeViewModel r in seznamRevizi)
-    {
-        if (r.Name.Contains(Name))
-        {
-            seznamVyhledanychRevizi.Add(r);
-        }
-    }
-    if (seznamVyhledanychRevizi.Count == 0)
+    List<RevizeViewModel> listR = db.FindRevizeVM(Name);
+    if (listR.Count == 0)
         return Results.NotFound("Zadne vysledky!");
-    return Results.Ok(seznamVyhledanychRevizi);
+    return Results.Ok(listR);
 });
 
-app.MapGet("/vybaveni/{id}", (Guid id) =>
+app.MapGet("/vybaveni/{id}", (Guid id, PptDbContext db) =>
 {
-    VybaveniVM? en = seznamVybaveni.SingleOrDefault(x => x.Id == id);
-    if (en is null)
+    VybaveniVM? item = db.FindVybaveniVM(id);
+    if (item is null)
         return Results.NotFound("Item Not Found!");
-    return Results.Ok(en);
+    return Results.Ok(item);
 });
 
 
-app.MapPost("/vybaveni", (VybaveniVM prichoziModel) =>
+app.MapPost("/vybaveni", (VybaveniVM prichoziModel, PptDbContext db) =>
 {
-    seznamVybaveni.Remove(prichoziModel);
-    prichoziModel.Id = Guid.NewGuid();
-    seznamVybaveni.Insert(0, prichoziModel);
-    return prichoziModel.Id;
+    prichoziModel.Id = Guid.Empty;
+    var en = prichoziModel.Adapt<Vybaveni>();
+    db.Vybavenis.Add(en);
+    db.SaveChanges();
+    return en.Id;
 });
 
-app.MapDelete("/vybaveni/{Id}", (Guid Id) =>
+app.MapDelete("/vybaveni/{Id}", (Guid Id, PptDbContext db) =>
 {
-    var item = seznamVybaveni.SingleOrDefault(x => x.Id == Id);
+    Vybaveni? item = db.FindVybaveni(Id);
     if (item == null)
         return Results.NotFound("Tato položka nebyla nalezena!!");
-    seznamVybaveni.Remove(item);
+    db.Vybavenis.Remove(item);
+    db.SaveChanges();
     return Results.Ok();
 }
 );
 
-app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel) =>
+app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel, PptDbContext db) =>
 {
-    var item = seznamVybaveni.SingleOrDefault(x => x.Id == prichoziModel.Id);
+    Vybaveni? item = db.FindVybaveni(prichoziModel.Id);
     if (item == null)
         return Results.NotFound("Tato položka nebyla nalezena!!");
-
-    item.Name = prichoziModel.Name;
-    item.BoughtDateTime = prichoziModel.BoughtDateTime;
-    item.LastRevisionDateTime = prichoziModel.LastRevisionDateTime;
-    item.Cena = prichoziModel.Cena;
+    db.UpdateVybaveni(prichoziModel);
+    db.SaveChanges();
     return Results.Ok();
 });
 
