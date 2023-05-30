@@ -21,6 +21,7 @@ namespace PPT23.API.Data
                 //.. přidej do db
                 var vybavenis = VybaveniVM.VratRandSeznam(PocetVybaveni, true).Select(x => x.Adapt<Vybaveni>());
                 List<Revize> revizes = new();
+                List<Ukon> ukons = new();
 
                 _db.Vybavenis.AddRange(vybavenis);
 
@@ -31,6 +32,9 @@ namespace PPT23.API.Data
                 foreach (Vybaveni v in listVybaveniSId) 
                 {
                     int numOfRevizes = Random.Shared.Next(0, 10);
+                    int numOfUkons= Random.Shared.Next(0, 20);
+
+
                     for (int i = 0; i < numOfRevizes; i++)
                     {
                         Revize rev = new()
@@ -42,9 +46,24 @@ namespace PPT23.API.Data
                         v.Revizes.Add(rev);
                         revizes.Add(rev);
                     }
+
+                    for (int i = 0; i < numOfUkons; i++)
+                    {
+                        Ukon u = new()
+                        {
+                            Kod = RandomString(Random.Shared.Next(5, 10)),
+                            DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
+                            Detail = RandomString(Random.Shared.Next(5, 350)),
+                            VybaveniId = v.Id
+                        };
+                        v.Ukons.Add(u);
+                        ukons.Add(u);
+                    }
+
                 }
 
                 _db.Revizes.AddRange(revizes);
+                _db.Ukons.AddRange(ukons);
 
                 await _db.SaveChangesAsync();
             }

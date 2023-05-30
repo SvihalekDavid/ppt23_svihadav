@@ -125,5 +125,5 @@ public class VybaveniSrevizemaVM
     public DateTime BoughtDateTime { get; set; }
     public List<RevizeViewModel> Revizes { get; set; } = new();
     public int Cena { get; set; }
-    //public List<UkonVm> Ukons { get; set; } = new();
+    public List<UkonVM> Ukons { get; set; } = new();
 }

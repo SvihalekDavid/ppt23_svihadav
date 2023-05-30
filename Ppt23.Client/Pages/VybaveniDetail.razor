@@ -2,6 +2,7 @@
 @using Ppt23.Shared
 @using Ppt23.Client.Components
 @inject HttpClient Http
+@using Microsoft.AspNetCore.Components.Forms;
 
 @if (vybaveni == null) return;
 
@@ -19,15 +20,63 @@
     }
 </div>
 
+<div class="flex flex-col mx-5 ">
+    <div class="text-bold text-xl">Ukony:</div>
+    @foreach (var u in vybaveni.Ukons.OrderByDescending(x => x.DateTime))
+    {
+        <div>@u.Kod - @u.DateTime.ToString("yyyy-MM-dd")</div>
+    }
+</div>
+
+<div class="text-bold text-xl">Úkony: <button @onclick="()=> {newUkon=new();}" class="twbtn bg-teal-500 @(newUkon==null?"":"hidden")">Přidat úkon</button></div>
+@if (newUkon != null)
+{
+    <EditForm class="col-span-4 grid gap-x-2 grid-cols-[auto_fr] max-w-sm" Model=newUkon OnValidSubmit="() => NewUkonValidSubmit()">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="col-span-2 text-red-500 font-bold" />
+
+        <label>Kod</label>
+        <InputText class="border-2 border-slate-300" @bind-Value=newUkon.Kod />
+        <label>Detail</label>
+        <InputTextArea class="border-2 border-slate-300" @bind-Value=newUkon.Detail />
+
+        <div class="flex col-span-2 gap-2">
+
+            <button type="submit" class="bg-amber-500 twbtn">
+                Ok
+            </button>
+            <button @onclick="() => newUkon=null" class="bg-gray-500 twbtn">
+                zruš
+            </button>
+
+        </div>
+    </EditForm>
+
+}
+
 @code {
     [Parameter] public Guid Id { get; set; }
     VybaveniSrevizemaVM? vybaveni;
 
+    UkonVM? newUkon;
+
     protected override async Task OnInitializedAsync()
     {
-        // var vyb = await Http.GetFromJsonAsync<VybaveniVM>($"vybaveni/{Id}");
-        // vybaveni = vyb;
-
         vybaveni = await Http.GetFromJsonAsync<VybaveniSrevizemaVM>($"vybaveni/{Id}");
+    }
+
+    async Task NewUkonValidSubmit()
+    {
+        if (newUkon == null || vybaveni == null)
+            return;
+        newUkon.VybaveniId = vybaveni.Id;
+        var res = await Http.PostAsJsonAsync("ukon", newUkon);
+        if (res.IsSuccessStatusCode)
+        {
+            vybaveni.Ukons.Add(newUkon);
+            newUkon.Id = await res.Content.ReadFromJsonAsync<Guid>();
+        }
+        newUkon = null;
+        StateHasChanged();
     }
 }

@@ -82,6 +82,15 @@ app.MapPost("/revize", (RevizeViewModel prichoziModel, PptDbContext db) =>
     return en.Id;
 });
 
+app.MapPost("/ukon", (UkonVM prichoziModel, PptDbContext db) =>
+{
+    prichoziModel.Id = Guid.Empty;
+    var en = prichoziModel.Adapt<Ukon>();
+    db.Ukons.Add(en);
+    db.SaveChanges();
+    return en.Id;
+});
+
 app.MapGet("/vybaveni/{id}", (Guid id, PptDbContext db) =>
 {
     VybaveniSrevizemaVM? item = db.FindVybaveniSRevizema(id);

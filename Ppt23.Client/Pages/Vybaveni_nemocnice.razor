@@ -59,7 +59,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(1000);
+        await NactiVybaveniDoSeznamu();
+    }
+
+    VybaveniVM? v;
+
+    public bool isInNewMode { get; set; } = false;
+
+    public Vybaveni_nemocnice()
+    {
+        //seznamVybaveni = VybaveniVM.VratRandSeznam(10);
+        // v = new();
+    }
+
+    async Task NactiVybaveniDoSeznamu()
+    {
         seznamVybaveni = await Http.GetFromJsonAsync<List<VybaveniVM>>("vybaveni");
 
         if (seznamVybaveni != null)
@@ -86,16 +100,7 @@ else
                 }
             }
         }
-    }
 
-    VybaveniVM? v;
-
-    public bool isInNewMode { get; set; } = false;
-
-    public Vybaveni_nemocnice()
-    {
-        //seznamVybaveni = VybaveniVM.VratRandSeznam(10);
-        // v = new();
     }
 
     void ZmenNewMode()
@@ -108,10 +113,10 @@ else
         v = Vyb.Copy();
     }
 
-    void pridejItem()
-    {
-        seznamVybaveni.Add(new VybaveniVM(Guid.NewGuid(), VybaveniVM.VytvorRandomJmeno(), VybaveniVM.VytvorRandomDatumNakupu(), VybaveniVM.VytvorRandomDatumPosledniRevize()));
-    }
+    //void pridejItem()
+    //{
+    //    seznamVybaveni.Add(new VybaveniVM(Guid.NewGuid(), VybaveniVM.VytvorRandomJmeno(), VybaveniVM.VytvorRandomDatumNakupu(), VybaveniVM.VytvorRandomDatumPosledniRevize()));
+    //}
 
     //void smazat(VybaveniVM vyb)
     //{
@@ -130,8 +135,8 @@ else
         if (odpoved.IsSuccessStatusCode)
         {
             var aktualizovaneVybaveni = await odpoved.Content.ReadFromJsonAsync<VybaveniVM>();
-            var index = seznamVybaveni.FindIndex(v => v.Id == aktualizovaneVybaveni.Id);
-            seznamVybaveni[index] = aktualizovaneVybaveni;
+            var index = seznamVybaveni!.FindIndex(v => v.Id == aktualizovaneVybaveni!.Id);
+            seznamVybaveni[index] = aktualizovaneVybaveni!;
         }
     }
 
@@ -142,13 +147,16 @@ else
             var odpoved = await Http.PostAsJsonAsync("vybaveni", vyb);
             if (odpoved.IsSuccessStatusCode)
             {
-                seznamVybaveni.Insert(0, vyb);
+                vyb.Id = await odpoved.Content.ReadFromJsonAsync<Guid>();
+                seznamVybaveni!.Insert(0, vyb);
+                Console.WriteLine("inserted");
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
+        StateHasChanged();
     }
 
     void provedRevizi(VybaveniVM vyb)

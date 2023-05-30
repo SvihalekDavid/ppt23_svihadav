@@ -30,6 +30,7 @@
         <button class="twbtn bg-red-400" @onclick="() => SmazEventCallback.InvokeAsync()">X</button>
         <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1" @onclick="() => ProvesRevizi()">provest revizi</button>
         <button @onclick="() => TurnOnEdit()" class="border-[1px] border-amber-600 rounded-sm text-sm px-2 py-2">✏️</button>
+        <a href="vybaveni/@Vyb.Id">Detail</a>
     </div>
 }
 else if (editingItem != null && IsInEditMode)
@@ -82,6 +83,7 @@ else if (editingItem != null && IsInEditMode)
 
     async Task ProvesRevizi()
     {
+        Console.WriteLine("revize provadena");
         RevizeViewModel vm = new()
         {
             Name = $"Revize z {DateTime.Now.Ticks}",
@@ -93,6 +95,15 @@ else if (editingItem != null && IsInEditMode)
         {
             Vyb.LastRevisionDateTime = vm.DateTime;
         }
+        else
+        {
+            Console.WriteLine(odpoved.Content);
+        }
+    }
+
+    private void NaStrankuDetailu()
+    {
+        return;
     }
 
 
@@ -116,6 +127,7 @@ else if (editingItem != null && IsInEditMode)
         {
             EditDoneCallback.InvokeAsync(Vyb);
         }
+        StateHasChanged();
     }
 
     private void TurnOnEdit()

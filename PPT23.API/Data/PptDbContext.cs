@@ -18,6 +18,9 @@ namespace PPT23.API.Data
         public DbSet<Vybaveni> Vybavenis => Set<Vybaveni>();
         public DbSet<Revize> Revizes => Set<Revize>();
 
+        public DbSet<Ukon> Ukons => Set<Ukon>();
+
+
         public List<VybaveniVM> MakeListVybaveniVM()
         {
             List<VybaveniVM> list = new List<VybaveniVM>();
@@ -102,11 +105,19 @@ namespace PPT23.API.Data
                 {
                     VybaveniSrevizemaVM vr = item.Adapt<VybaveniSrevizemaVM>();
                     vr.Revizes.Clear();
+                    vr.Ukons.Clear();
                     foreach (Revize r in Revizes)
                     {
                         if (r.VybaveniId == vr.Id)
                         {
                             vr.Revizes.Add(r.Adapt<RevizeViewModel>());
+                        }
+                    }
+                    foreach (Ukon u in Ukons)
+                    {
+                        if (u.VybaveniId == vr.Id)
+                        {
+                            vr.Ukons.Add(u.Adapt<UkonVM>());
                         }
                     }
                     return vr;

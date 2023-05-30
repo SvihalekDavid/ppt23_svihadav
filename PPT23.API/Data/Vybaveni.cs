@@ -14,6 +14,8 @@ namespace PPT23.API.Data
 
         public List<Revize> Revizes { get; set; } = new();
 
+        public List<Ukon> Ukons { get; set; } = new();
+
         [Required, Range(0, 10000000, ErrorMessage = "Cena musí být v rozmezí 0-10000000")]
         public int Cena { get; set; }
 
