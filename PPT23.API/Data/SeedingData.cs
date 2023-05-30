@@ -22,6 +22,8 @@ namespace PPT23.API.Data
                 var vybavenis = VybaveniVM.VratRandSeznam(PocetVybaveni, true).Select(x => x.Adapt<Vybaveni>());
                 List<Revize> revizes = new();
                 List<Ukon> ukons = new();
+                List<Pracovnik> pracovniks = new();
+
 
                 _db.Vybavenis.AddRange(vybavenis);
 
@@ -29,11 +31,25 @@ namespace PPT23.API.Data
 
                 var listVybaveniSId = _db.Vybavenis.ToList();
 
+                int numOfPracovniks = Random.Shared.Next(5, 10);
+                for (int i = 0; i < numOfPracovniks; i++)
+                {
+                    Pracovnik p = new()
+                    {
+                        Name = RandomString(Random.Shared.Next(5, 15)),
+                        Povolani = RandomString(Random.Shared.Next(5, 15)),
+                    };
+                    pracovniks.Add(p);
+                }
+
+                _db.Pracovniks.AddRange(pracovniks);
+                await _db.SaveChangesAsync();
+
+
                 foreach (Vybaveni v in listVybaveniSId) 
                 {
                     int numOfRevizes = Random.Shared.Next(0, 10);
                     int numOfUkons= Random.Shared.Next(0, 20);
-
 
                     for (int i = 0; i < numOfRevizes; i++)
                     {
@@ -54,7 +70,8 @@ namespace PPT23.API.Data
                             Kod = RandomString(Random.Shared.Next(5, 10)),
                             DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
                             Detail = RandomString(Random.Shared.Next(5, 350)),
-                            VybaveniId = v.Id
+                            VybaveniId = v.Id,
+                            PracovnikId = PridejPracovnikaNeboNull()
                         };
                         v.Ukons.Add(u);
                         ukons.Add(u);
@@ -68,6 +85,18 @@ namespace PPT23.API.Data
                 await _db.SaveChangesAsync();
             }
 
+        }
+
+        public Guid? PridejPracovnikaNeboNull()
+        {
+            int num = Random.Shared.Next(1, 6);
+            if (num == 1)
+            {
+                return null;
+            }
+            int pocetPracovniku = _db.Pracovniks.Count();
+            int pracovnikNum = Random.Shared.Next(0, pocetPracovniku);
+            return _db.Pracovniks.ToList()[pracovnikNum].Id;
         }
 
         public static string RandomString(int length) =>

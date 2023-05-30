@@ -20,6 +20,8 @@ namespace PPT23.API.Data
 
         public DbSet<Ukon> Ukons => Set<Ukon>();
 
+        public DbSet<Pracovnik> Pracovniks => Set<Pracovnik>();
+
 
         public List<VybaveniVM> MakeListVybaveniVM()
         {
@@ -117,7 +119,19 @@ namespace PPT23.API.Data
                     {
                         if (u.VybaveniId == vr.Id)
                         {
-                            vr.Ukons.Add(u.Adapt<UkonVM>());
+                            UkonVM uVM = u.Adapt<UkonVM>();
+                            uVM.PracovnikName = null;
+                            if (uVM.PracovnikId != null)
+                            {
+                                foreach (Pracovnik p in Pracovniks)
+                                {
+                                    if (uVM.PracovnikId == p.Id)
+                                    {
+                                        uVM.PracovnikName = p.Name;
+                                    }
+                                }
+                            }
+                            vr.Ukons.Add(uVM);
                         }
                     }
                     return vr;

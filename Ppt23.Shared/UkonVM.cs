@@ -15,5 +15,10 @@ namespace Ppt23.Shared
         public DateTime DateTime { get; set; } = DateTime.Now;
 
         public Guid VybaveniId { get; set; }
+
+        public Guid? PracovnikId { get; set; }
+
+        public string? PracovnikName { get; set; }
+
     }
 }

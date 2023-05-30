@@ -24,7 +24,19 @@
     <div class="text-bold text-xl">Ukony:</div>
     @foreach (var u in vybaveni.Ukons.OrderByDescending(x => x.DateTime))
     {
-        <div>@u.Kod - @u.DateTime.ToString("yyyy-MM-dd")</div>
+        @if (u.PracovnikId != null)
+        {
+            <div>
+                <div class="bg-green-500">@u.Kod - @u.DateTime.ToString("yyyy-MM-dd") ,Pracovnik: @u.PracovnikName</div>
+            </div>
+          
+        }
+        else
+        {
+            <div>
+                <div>@u.Kod - @u.DateTime.ToString("yyyy-MM-dd") , Pracovnik: Pracovnik neni</div>
+            </div>
+        }
     }
 </div>
 
@@ -60,6 +72,8 @@
 
     UkonVM? newUkon;
 
+    string? PracovnikName;
+
     protected override async Task OnInitializedAsync()
     {
         vybaveni = await Http.GetFromJsonAsync<VybaveniSrevizemaVM>($"vybaveni/{Id}");
@@ -79,4 +93,8 @@
         newUkon = null;
         StateHasChanged();
     }
+    //async Task NajdiPracovnikJmeno(UkonVM u)
+    //{
+    //    return;
+    //}
 }
