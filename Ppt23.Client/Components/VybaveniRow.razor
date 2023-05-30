@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms;
 @using Ppt23.Shared;
+@inject HttpClient Http
 
 
 @{
@@ -13,12 +14,21 @@
 {
     <div class=@ziskejBarvuRadku(Vyb)>@Vyb.Name</div>
     <div class=@ziskejBarvuRadku(Vyb)>@Vyb.BoughtDateTime.ToString("yyyy-MM-dd")</div>
-    <div class=@ziskejBarvuRadku(Vyb)>@Vyb.LastRevisionDateTime.ToString("yyyy-MM-dd")</div>
+    if (Vyb.LastRevisionDateTime == null)
+    {
+        <div class=@ziskejBarvuRadku(Vyb)>Revize zatim neprobehla</div>
+
+    }
+    else
+    {
+        <div class=@ziskejBarvuRadku(Vyb)>@Vyb.LastRevisionDateTime?.ToString("yyyy-MM-dd")</div>
+
+    }
     <div class=@ziskejBarvuRadku(Vyb)>@ziskejAnoNe(Vyb)</div>
     <div class=@ziskejBarvuRadku(Vyb)>@Vyb.Cena</div>
     <div class=@ziskejBarvuRadku(Vyb)>
         <button class="twbtn bg-red-400" @onclick="() => SmazEventCallback.InvokeAsync()">X</button>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1" @onclick="() => RevizeEventCallback.InvokeAsync()">provest revizi</button>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-1" @onclick="() => ProvesRevizi()">provest revizi</button>
         <button @onclick="() => TurnOnEdit()" class="border-[1px] border-amber-600 rounded-sm text-sm px-2 py-2">✏️</button>
     </div>
 }
@@ -28,7 +38,7 @@ else if (editingItem != null && IsInEditMode)
         <DataAnnotationsValidator /> 
         <InputText class="border-2 border-slate-300" @bind-Value=@editingItem.Name />
         <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.BoughtDateTime />
-        <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime />
+        <div></div>
         <div class="bg-green-300">@ziskejAnoNe(editingItem)</div>
         <InputNumber class="border-2 border-slate-300" @bind-Value=@editingItem.Cena />
         <ValidationMessage For="@(() => editingItem.Name)" class="text-xs text-red-500"/>
@@ -54,6 +64,8 @@ else if (editingItem != null && IsInEditMode)
 }
 @code
 {
+
+    // <InputDate class="border-2 border-slate-300" @bind-Value=@editingItem.LastRevisionDateTime />
     bool success = true;
 
     [Parameter, EditorRequired] public VybaveniVM? Vyb
@@ -67,6 +79,22 @@ else if (editingItem != null && IsInEditMode)
     [Parameter] public EventCallback RevizeEventCallback { get; set; }
     [Parameter] public EventCallback EditDoneCallback { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    async Task ProvesRevizi()
+    {
+        RevizeViewModel vm = new()
+        {
+            Name = $"Revize z {DateTime.Now.Ticks}",
+            DateTime = DateTime.Now,
+            VybaveniId = Vyb!.Id
+        };
+        var odpoved = await Http.PostAsJsonAsync("revize", vm);
+        if (odpoved.IsSuccessStatusCode)
+        {
+            Vyb.LastRevisionDateTime = vm.DateTime;
+        }
+    }
+
 
     private void TurnOffEdit(bool success)
     {

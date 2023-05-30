@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<SeedingData>();
 
 builder.Services.AddCors(corsOptions => corsOptions.AddDefaultPolicy(policy =>
     policy.WithOrigins(builder.Configuration["AllowedOrigins"])
@@ -67,16 +68,25 @@ app.MapGet("/revize", (PptDbContext db) =>
 app.MapGet("/revize/{Name}", (string Name, PptDbContext db) =>
 {
     List<RevizeViewModel> listR = db.FindRevizeVM(Name);
-    if (listR.Count == 0)
-        return Results.NotFound("Zadne vysledky!");
+    //if (listR.Count == 0)
+    //    return Results.NotFound(listR);
     return Results.Ok(listR);
+});
+
+app.MapPost("/revize", (RevizeViewModel prichoziModel, PptDbContext db) =>
+{
+    prichoziModel.Id = Guid.Empty;
+    var en = prichoziModel.Adapt<Revize>();
+    db.Revizes.Add(en);
+    db.SaveChanges();
+    return en.Id;
 });
 
 app.MapGet("/vybaveni/{id}", (Guid id, PptDbContext db) =>
 {
-    VybaveniVM? item = db.FindVybaveniVM(id);
+    VybaveniSrevizemaVM? item = db.FindVybaveniSRevizema(id);
     if (item is null)
-        return Results.NotFound("Item Not Found!");
+        return Results.NotFound(null);
     return Results.Ok(item);
 });
 
@@ -110,5 +120,7 @@ app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel, PptDbContext db) =>
     db.SaveChanges();
     return Results.Ok();
 });
+
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedingData>().SeedData();
 
 app.Run();

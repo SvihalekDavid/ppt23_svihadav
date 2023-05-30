@@ -68,6 +68,20 @@ namespace PPT23.API.Data
             }
             return listR;
         }
+
+        public List<RevizeViewModel> FindRevizeByVybaveniId(Guid id)
+        {
+            List<RevizeViewModel> listR = new();
+            foreach (Revize item in Revizes)
+            {
+                if (item.VybaveniId == id)
+                {
+                    listR.Add(item.Adapt<RevizeViewModel>());
+                }
+            }
+            return listR;
+        }
+
         public Vybaveni? FindVybaveni(Guid id)
         {
             foreach (Vybaveni item in Vybavenis)
@@ -75,6 +89,27 @@ namespace PPT23.API.Data
                 if (id == item.Id)
                 {
                     return item;
+                }
+            }
+            return null;
+        }
+
+        public VybaveniSrevizemaVM? FindVybaveniSRevizema(Guid id)
+        {
+            foreach (Vybaveni item in Vybavenis)
+            {
+                if (id == item.Id)
+                {
+                    VybaveniSrevizemaVM vr = item.Adapt<VybaveniSrevizemaVM>();
+                    vr.Revizes.Clear();
+                    foreach (Revize r in Revizes)
+                    {
+                        if (r.VybaveniId == vr.Id)
+                        {
+                            vr.Revizes.Add(r.Adapt<RevizeViewModel>());
+                        }
+                    }
+                    return vr;
                 }
             }
             return null;
@@ -88,7 +123,6 @@ namespace PPT23.API.Data
                 {
                     item.Name = prichoziModel.Name;
                     item.BoughtDateTime = prichoziModel.BoughtDateTime;
-                    item.LastRevisionDateTime = prichoziModel.LastRevisionDateTime;
                     item.Cena = prichoziModel.Cena;
                 }
             }

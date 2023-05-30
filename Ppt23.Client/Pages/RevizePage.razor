@@ -29,6 +29,7 @@
     private async void Hledej()
     {
         seznamRevizi = await Http.GetFromJsonAsync<List<RevizeViewModel>>($"revize/{inputText}");
+        StateHasChanged();
         return;
     }
 }

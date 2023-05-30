@@ -10,7 +10,7 @@ public class VybaveniVM
     [MinLength(5, ErrorMessage = "Délka u pole \"{0}\" musí být alespoň {1} znaků")]
     public string Name { get; set; } = "";
     public DateTime BoughtDateTime { get; set; }
-    public DateTime LastRevisionDateTime { get; set; }
+    public DateTime? LastRevisionDateTime { get; set; }
 
     [Required, Range(0,10000000, ErrorMessage = "Cena musí být v rozmezí 0-10000000")]
     public int Cena { get; set; }
@@ -19,6 +19,10 @@ public class VybaveniVM
     { 
         get 
         {
+            if (LastRevisionDateTime == null)
+            {
+                return true;
+            }
             int years = 2;
             long milisecondsToYears = 31556926000;
             if ((DateTime.Now.Subtract((DateTime)LastRevisionDateTime)).TotalMilliseconds >= years * milisecondsToYears)
@@ -29,7 +33,7 @@ public class VybaveniVM
         } 
     }
 
-    public VybaveniVM(Guid id, string Name, DateTime BoughtDateTime, DateTime LastRevisionDateTime, int Cena = 0)
+    public VybaveniVM(Guid id, string Name, DateTime BoughtDateTime, DateTime? LastRevisionDateTime, int Cena = 0)
     {
         Id = id;
         this.Name = Name;
@@ -43,17 +47,19 @@ public class VybaveniVM
         Id = Guid.NewGuid();
         this.Name = "";
         this.BoughtDateTime = DateTime.Now;
-        this.LastRevisionDateTime = DateTime.Now;
+        this.LastRevisionDateTime = null;
         this.Cena = 0;
     }
 
-    public static List<VybaveniVM> VratRandSeznam(int pocet)
+    public static List<VybaveniVM> VratRandSeznam(int pocet, bool emptyId = false)
     {
         Random rnd = new Random();
         List<VybaveniVM> listVybaveni = new List<VybaveniVM>();
+        Guid guid;
         for (int i = 0; i < pocet; ++i)
         {
-            VybaveniVM vybaveni = new VybaveniVM(Guid.NewGuid(), VytvorRandomJmeno(),VytvorRandomDatumNakupu(), VytvorRandomDatumPosledniRevize());
+            guid = emptyId == false ? Guid.NewGuid() : Guid.Empty; 
+            VybaveniVM vybaveni = new VybaveniVM(guid, VytvorRandomJmeno(),VytvorRandomDatumNakupu(), null);
             listVybaveni.Add(vybaveni);
         }
 
@@ -109,4 +115,15 @@ public class VybaveniVM
         }
         return true;
     }
+}
+
+public class VybaveniSrevizemaVM
+{
+    public string Name { get; set; } = "";
+    public Guid Id { get; set; }
+    //public bool IsRevisionNeeded { get => DateTime.Now.AddYears(-2) < LastRevisionDateTime; }
+    public DateTime BoughtDateTime { get; set; }
+    public List<RevizeViewModel> Revizes { get; set; } = new();
+    public int Cena { get; set; }
+    //public List<UkonVm> Ukons { get; set; } = new();
 }

@@ -11,7 +11,8 @@ namespace PPT23.API.Data
         [MinLength(5, ErrorMessage = "Délka u pole \"{0}\" musí být alespoň {1} znaků")]
         public string Name { get; set; } = "";
         public DateTime BoughtDateTime { get; set; }
-        public DateTime LastRevisionDateTime { get; set; }
+
+        public List<Revize> Revizes { get; set; } = new();
 
         [Required, Range(0, 10000000, ErrorMessage = "Cena musí být v rozmezí 0-10000000")]
         public int Cena { get; set; }
@@ -22,7 +23,6 @@ namespace PPT23.API.Data
             v.Id = vyb.Id;
             v.Name = vyb.Name;
             v.BoughtDateTime = vyb.BoughtDateTime;
-            v.LastRevisionDateTime = vyb.LastRevisionDateTime;
             v.Cena = vyb.Cena;
             return v;
         }
@@ -33,7 +33,6 @@ namespace PPT23.API.Data
             v.Id = vyb.Id;
             v.Name = vyb.Name;
             v.BoughtDateTime = vyb.BoughtDateTime;
-            v.LastRevisionDateTime = vyb.LastRevisionDateTime;
             v.Cena = vyb.Cena;
             return v;
         }

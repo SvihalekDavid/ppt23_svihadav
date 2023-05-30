@@ -12,6 +12,10 @@ namespace Ppt23.Shared
 
         public string Name { get; set; } = "";
 
+        public DateTime DateTime { get; set; }
+
+        public Guid VybaveniId { get; set; }
+
         public RevizeViewModel()
         {
             this.Id = Guid.NewGuid();

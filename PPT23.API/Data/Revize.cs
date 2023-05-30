@@ -6,14 +6,11 @@ namespace PPT23.API.Data
     {
         public Guid Id { get; set; }
 
-        //
         public string Name { get; set; } = "";
+        public DateTime DateTime { get; set; }
 
-        public Revize(Guid id, string Name)
-        {
-            this.Id = id;
-            this.Name = Name;
-        }
+        public Guid VybaveniId { get; set; }
+        public Vybaveni Vybaveni { get; set; } = null!;
 
         public static RevizeViewModel MakeRevizeVMFromRevize(Revize vyb)
         {

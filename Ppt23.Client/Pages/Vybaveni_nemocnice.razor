@@ -61,6 +61,31 @@ else
     {
         await Task.Delay(1000);
         seznamVybaveni = await Http.GetFromJsonAsync<List<VybaveniVM>>("vybaveni");
+
+        if (seznamVybaveni != null)
+        {
+            DateTime? finalDateTime = null;
+            foreach (VybaveniVM v in seznamVybaveni)
+            {
+                VybaveniSrevizemaVM? vybaveni = await Http.GetFromJsonAsync<VybaveniSrevizemaVM>($"vybaveni/{v.Id}");
+                if (vybaveni != null)
+                {
+                    if (vybaveni.Revizes.Count == 0)
+                    {
+                        finalDateTime = null;
+                    }
+                    else
+                    {
+                        finalDateTime = vybaveni.Revizes[0].DateTime;
+                        foreach (RevizeViewModel r in vybaveni.Revizes)
+                        {
+                            finalDateTime = r.DateTime > finalDateTime ? r.DateTime : finalDateTime;
+                        }
+                    }
+                    v.LastRevisionDateTime = finalDateTime;
+                }
+            }
+        }
     }
 
     VybaveniVM? v;
