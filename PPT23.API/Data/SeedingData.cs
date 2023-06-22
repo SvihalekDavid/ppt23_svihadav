@@ -1,29 +1,42 @@
 ﻿using Ppt23.Shared;
 using Mapster;
+using Bogus;
 
 namespace PPT23.API.Data
 {
     public class SeedingData
     {
         private readonly PptDbContext _db;
-        private const int PocetVybaveni = 10;
 
         public SeedingData(PptDbContext db)
         {
             _db = db;
         }
 
-        public async Task SeedData()
+        public async Task SeedData(bool isDevelopment)
         {
             if (!_db.Vybavenis.Any())//není žádné vybavení - nějaké přidáme
             {
+                var faker = new Faker("cz");
+                int PocetVybaveni = isDevelopment ? faker.Random.Number(5, 10) : faker.Random.Number(10, 15);
                 // vytvoř x vybaveních
                 //.. přidej do db
-                var vybavenis = VybaveniVM.VratRandSeznam(PocetVybaveni, true).Select(x => x.Adapt<Vybaveni>());
+                //var vybavenis = VybaveniVM.VratRandSeznam(PocetVybaveni, true).Select(x => x.Adapt<Vybaveni>());
+                List<Vybaveni> vybavenis = new();
                 List<Revize> revizes = new();
                 List<Ukon> ukons = new();
                 List<Pracovnik> pracovniks = new();
 
+                for (int i = 0; i < PocetVybaveni; i++)
+                {
+                    var v = new Faker<Vybaveni>()
+                    .RuleFor(u => u.Id, f => Guid.Empty)
+                    .RuleFor(u => u.Name, f => f.Random.String(faker.Random.Number(5, 15), 'a', 'z'))
+                    .RuleFor(u => u.BoughtDateTime, f => f.Date.Between(new DateTime(2000, 1, 1), new DateTime(2019, 12, 31)))
+                    .RuleFor(u => u.Cena, f => f.Random.Number(0, 100000));
+
+                    vybavenis.Add(v);
+                }
 
                 _db.Vybavenis.AddRange(vybavenis);
 
@@ -31,48 +44,63 @@ namespace PPT23.API.Data
 
                 var listVybaveniSId = _db.Vybavenis.ToList();
 
-                int numOfPracovniks = Random.Shared.Next(5, 10);
+                int numOfPracovniks = faker.Random.Number(5, 10);  // Random.Shared.Next(5, 10);
+
+                var occupations = new string[] { "Chirurg", "Zdravotni sestra", "Biomedicinsky technik", "IT pracovnik", "Doktor", "Inspektor"};
+
                 for (int i = 0; i < numOfPracovniks; i++)
                 {
-                    Pracovnik p = new()
-                    {
-                        Name = RandomString(Random.Shared.Next(5, 15)),
-                        Povolani = RandomString(Random.Shared.Next(5, 15)),
-                    };
+                    var p = new Faker<Pracovnik>("cz")
+                        .RuleFor(u => u.Name, f => f.Name.FullName())
+                        .RuleFor(u => u.Povolani, f => f.PickRandom(occupations));
+                    //Pracovnik p = new()
+                    //{
+                    //    Name = RandomString(Random.Shared.Next(5, 15)),
+                    //    Povolani = RandomString(Random.Shared.Next(5, 15)),
+                    //};
                     pracovniks.Add(p);
                 }
 
                 _db.Pracovniks.AddRange(pracovniks);
                 await _db.SaveChangesAsync();
 
-
                 foreach (Vybaveni v in listVybaveniSId) 
                 {
-                    int numOfRevizes = Random.Shared.Next(0, 10);
-                    int numOfUkons= Random.Shared.Next(0, 20);
+                    int numOfRevizes = faker.Random.Number(0, 10); // Random.Shared.Next(0, 10);
+                    int numOfUkons= faker.Random.Number(0, 20);  //Random.Shared.Next(0, 20);
 
                     for (int i = 0; i < numOfRevizes; i++)
                     {
-                        Revize rev = new()
-                        {
-                            Name = RandomString(Random.Shared.Next(5, 15)),
-                            DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
-                            VybaveniId = v.Id
-                        };
+                        var rev = new Faker<Revize>()
+                            .RuleFor(u => u.Name, f => f.Random.String(faker.Random.Number(5, 15), 'a', 'z'))
+                            .RuleFor(u => u.DateTime, f => f.Date.Between(v.BoughtDateTime, v.BoughtDateTime.AddDays(faker.Random.Number(0, 3*365))))
+                            .RuleFor(u => u.VybaveniId, f => v.Id);
+                        //Revize rev = new()
+                        //{
+                        //    Name = RandomString(Random.Shared.Next(5, 15)),
+                        //    DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
+                        //    VybaveniId = v.Id
+                        //};
                         v.Revizes.Add(rev);
                         revizes.Add(rev);
                     }
 
                     for (int i = 0; i < numOfUkons; i++)
                     {
-                        Ukon u = new()
-                        {
-                            Kod = RandomString(Random.Shared.Next(5, 10)),
-                            DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
-                            Detail = RandomString(Random.Shared.Next(5, 350)),
-                            VybaveniId = v.Id,
-                            PracovnikId = PridejPracovnikaNeboNull()
-                        };
+                        var u = new Faker<Ukon>()
+                            .RuleFor(u => u.Kod, f => f.Random.String(faker.Random.Number(5, 15), 'a', 'z'))
+                            .RuleFor(u => u.DateTime, f => f.Date.Between(v.BoughtDateTime, v.BoughtDateTime.AddDays(faker.Random.Number(0, 3 * 365))))
+                            .RuleFor(u => u.Detail, f => f.Lorem.Sentence())
+                            .RuleFor(u => u.VybaveniId, f => v.Id)
+                            .RuleFor(u => u.PracovnikId, f => PridejPracovnikaNeboNull());
+                        //Ukon u = new()
+                        //{
+                        //    Kod = RandomString(Random.Shared.Next(5, 10)),
+                        //    DateTime = v.BoughtDateTime.AddDays(Random.Shared.Next(0, 3 * 365)),
+                        //    Detail = RandomString(Random.Shared.Next(5, 350)),
+                        //    VybaveniId = v.Id,
+                        //    PracovnikId = PridejPracovnikaNeboNull()
+                        //};
                         v.Ukons.Add(u);
                         ukons.Add(u);
                     }

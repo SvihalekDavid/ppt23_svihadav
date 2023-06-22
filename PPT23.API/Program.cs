@@ -130,6 +130,6 @@ app.MapPut("/vybaveni/{Id}", (VybaveniVM prichoziModel, PptDbContext db) =>
     return Results.Ok();
 });
 
-await app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedingData>().SeedData();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedingData>().SeedData(app.Environment.IsDevelopment());
 
 app.Run();
